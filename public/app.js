@@ -7,31 +7,106 @@ window.addEventListener('load', function () {
     
     repairShop.tires = 0;
     repairShop.paint = 'Red';
-    repairShop.exhaust = "Broken";
+    repairShop.exhaust = false;  // broken
     repairShop.horsepower = 40;
     repairShop.mpg = 15;
     repairShop.total = 0;
 
     let sv = new ShopView({
-        el: document.querySelector('section'),
+        el: document.querySelector('main'),
         model: repairShop,
     });
 
     sv.render();
 
+    setupButtons(repairShop);
 });
+
+function setupButtons(model){
+
+    let tireBtn = document.querySelector("#fix-tire");
+    let paintBtn = document.querySelector("#fix-paint ");
+    let exhaustBtn = document.querySelector("#fix-exhaust");
+    let hpBtn = document.querySelector("#fix-horsepower");
+    let mpgBtn = document.querySelector("#fix-mpg");
+
+    tireBtn.addEventListener('click', function (){
+        model.fixTire();
+    });
+
+    paintBtn.addEventListener('click', function (){
+        model.paintCar();
+    });
+
+    exhaustBtn.addEventListener('click', function (){
+        model.fixExhaust();
+    });
+
+    hpBtn.addEventListener('click', function (){
+        model.boostHP();
+    });
+
+    mpgBtn.addEventListener('click', function (){
+        model.boostMPG();
+    });
+
+};
 },{"./shopmodel":2,"./shopview":3}],2:[function(require,module,exports){
 let State = require('ampersand-state');
 
+/* Represents single vehilce at shop */
 module.exports = State.extend({
     props: {
         tires: 'number',
         paint: 'string',
-        exhaust: 'string',
+        exhaust: 'boolean',
         horsepower: 'number',
         mpg: 'number',
         total: 'number',
-    }
+    },
+
+    fixTire: function () {
+        if(this.tires < 4){
+            this.tires++;
+            this.total += 200;
+        }
+    },
+
+    paintCar: function (){
+        if(this.paint === 'red'){
+            this.paint = 'green';
+        } else if (this.paint === 'green'){
+            this.paint = 'orange'
+        } else if (this.paint === 'orange'){
+            this.paint = 'black'
+        } else { 
+            this.paint = 'red'}
+
+            this.total += 300;
+    },
+
+    fixExhaust: function(){
+        if(!this.exhaust){
+            this.exhaust = true;
+            this.total += 300;
+        }
+    },
+
+    boostHP: function(){
+        this.horsepower += 10;
+        this.total += 100;
+    },
+
+    boostMPG: function(){
+        if(this.horsepower > 0){
+        this.mpg += 5;
+        this.horsepower -= 1;
+
+        this.total += 100;
+        }
+    },
+
+
 });
 },{"ampersand-state":402}],3:[function(require,module,exports){
 let View = require('ampersand-view');
@@ -47,56 +122,9 @@ module.exports = View.extend({
         'model.total' : '.total',
     },
     render: function () {
-        let model = this.model;
+
+        console.log('rendering');
         this.renderWithTemplate();
-        let tireBtn = document.querySelector('#tireRepair');
-        tireBtn.addEventListener('click', function () {
-            if (model.tires < 4) {
-                model.tires++;
-                model.total = model.total + 200;
-            }
-            if (model.tires === 4) {
-                tireBtn.disabled = true;
-            }
-        });
-        let redBtn = document.querySelector('#redPaint');
-        redBtn.addEventListener('click', function () {
-            model.paint = "Red";
-            model.total = model.total + 300;
-        }); 
-        let greenBtn = document.querySelector('#greenPaint');
-        greenBtn.addEventListener('click', function () {
-            model.paint = "Green";
-            model.total = model.total + 300;
-        }); 
-        let orangeBtn = document.querySelector('#orangePaint');
-        orangeBtn.addEventListener('click', function () {
-            model.paint = "Orange";
-            model.total = model.total + 300;
-        }); 
-        let blackBtn = document.querySelector('#blackPaint');
-        blackBtn.addEventListener('click', function () {
-            model.paint = "Black";
-            model.total = model.total + 300;
-        }); 
-        let exhaustBtn = document.querySelector('#exhaustfix');
-        exhaustBtn.addEventListener('click', function () {
-            if (model.exhaust === "Broken") {
-                model.exhaust = "Fixed";
-                model.total = model.total + 300;
-            }
-        });
-        let hpBtn = document.querySelector('#hpIncrease');
-        hpBtn.addEventListener('click', function () {
-            model.horsepower = model.horsepower + 10;
-            model.total = model.total + 100;
-        });
-        let mpgBtn = document.querySelector('#mpgIncrease');
-        mpgBtn.addEventListener('click', function () {
-            model.mpg = model.mpg + 5;
-            model.horsepower--;
-            model.total = model.total + 100;
-        })
         
     },
 });
